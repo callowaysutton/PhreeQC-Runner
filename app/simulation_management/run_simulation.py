@@ -1,4 +1,4 @@
-from app import docker_client, config, queue, global_checksums
+from app import docker_client, config, queue, global_checksums, logger
 from app.simulation_management.checksumming import calculate_checksum
 
 from fastapi import APIRouter, HTTPException
@@ -7,7 +7,7 @@ import os, time
 router = APIRouter()
 
 @router.post("/run_simulation")
-async def run_simulation(s3_bucket: str, input_file: str, output_file: str, database_file: str, command: str, bypass_checksum: bool = True):
+async def run_simulation(s3_bucket: str, command: str, output_file: str = "", database_file: str = "", input_file: str = "", bypass_checksum: bool = True):
     # --- Check to see if the input, output and database files are passed. ---
     if input_file and output_file and database_file:
         command = f"phreeqc /data/{input_file} /data/{output_file} /data/{database_file}"
@@ -83,6 +83,8 @@ async def run_simulation(s3_bucket: str, input_file: str, output_file: str, data
         command=f"{command}",
         host_config=host_config
     )
+    
+    logger.info(f"Adding {container.get('Id')} to the queue")
     # Add the container to the queue
     queue.append(container.get('Id'))
     return {"message": f"Adding simulation to the queue with command: {command}", "container_id": container.get('Id'), "queue_length": len(queue), "queue_position": queue.index(container.get('Id'))}

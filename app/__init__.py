@@ -18,7 +18,7 @@ global_checksums = []
 load_dotenv()
 
 config = {}
-config['prefix'] = os.getenv("URL_PREFIX") or "/runner"
+config['prefix'] = os.getenv("URL_PREFIX") or ""
 config['minio_URL'] = os.getenv("MINIO_URL") or ""
 config['minio_access_key'] = os.getenv("MINIO_ACCESS_KEY") or ""
 config['minio_secret_key'] = os.getenv("MINIO_SECRET") or ""
